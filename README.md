@@ -1,4 +1,4 @@
-# Block_A_star
+# Block A*
 Python implementation of Block A* search<sup>[1]</sup> (class project, Robotics, 2019)
 
 
