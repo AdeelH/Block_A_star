@@ -109,8 +109,6 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 # 
 
 def expand_block(state, curr_block, ingress_nodes, h):
-	# print(f'>> curr_block: {curr_block.map_addr}')
-	# print(f'>>>> ingress_nodes: {ingress_nodes}')
 	g, g_changed, lddb = state.g, state.g_changed, state.lddb
 
 	# neighboring blocks
