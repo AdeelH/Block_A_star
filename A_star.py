@@ -37,8 +37,6 @@ def a_star(Map, start, goal, h):
 				parent_map[nghb] = current
 
 	if goal_found:
-		# print(f'Goal found! Length: {g[goal]}')
 		return True, get_path_from_parent_map(parent_map, goal)
-	# print(f'Goal not found!')
 	return False, []
 

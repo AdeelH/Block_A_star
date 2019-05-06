@@ -64,9 +64,7 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 	length = np.inf
 	while len(state.pq) > 0 and state.pq.top()[1] < length:
 		curr_block = state.pq.pop()
-		# print('\n\n>>>>>> curr_block: ', curr_block.map_addr)
 		ingress = get_ingress_nodes(state, curr_block)
-		# print('ingress: ', ingress)
 		if len(ingress) == 0:
 			continue
 		if curr_block.map_addr == goal_block.map_addr:
@@ -74,19 +72,15 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 			min_y_to_goal = np.min(path_lens)
 			best_y = ingress[np.argmin(path_lens)]
 			if goal_block_node != best_y:
-				# print(f'parent[{(goal_block.map_addr, goal_block_node)}] = {(curr_block.map_addr, best_y)}')
 				state.parent[(goal_block, goal_block_node)] = (curr_block, best_y)
 			if min_y_to_goal < np.inf:
 				length = min(length, min_y_to_goal)
 			else:
 				state.heapvalue[curr_block] = np.inf
 		expand_block(state, curr_block, ingress, h)
-		# print('pq: ', state.pq)
 	if length < np.inf:
-		# print(f'\nGoal found! Length = {length}\n')
 		return True, recover_path(state, goal_block, goal_block_node)
 	else:
-		# print('Goal not found!')
 		return False, []
 
 
@@ -118,14 +112,11 @@ def expand_block(state, curr_block, Y, h):
 
 	nghbs = state.Map.neighbors(curr_block)
 	for next_block, direction in nghbs:
-		# print(f'\nnext_block: {next_block.map_addr}')
 		xs = get_egress_nodes(state, curr_block, next_block, direction)
-		# print(f'egress: {[x for x, _ in xs]}')
 		if len(xs) == 0:
 			continue
 
 		for x, x_nghb in xs:
-			# print(f'x: {x}, x_nghb: {x_nghb}')
 			x_old_g = state.g[curr_block].get(x, np.inf)
 			path_lens = [state.g[curr_block][y] + state.lddb[curr_block.idx].get((y, x), np.inf) for y in Y]
 			x_new_g = np.min(path_lens)
@@ -133,7 +124,6 @@ def expand_block(state, curr_block, Y, h):
 
 			if x_new_g < x_old_g:
 				state.parent[(curr_block, x)] = (curr_block, y)
-				# print(f'parent[{(curr_block.map_addr, x)}] = {(curr_block.map_addr, y)}')
 
 			state.g[curr_block][x] = min(x_old_g, x_new_g)
 			state.g_changed[curr_block][x] = False
@@ -145,20 +135,14 @@ def expand_block(state, curr_block, Y, h):
 			if x_nghb_new_g < x_nghb_old_g:
 				state.g_changed[next_block][x_nghb] = True
 				state.parent[(next_block, x_nghb)] = (curr_block, x)
-				# print(f'parent[{(next_block.map_addr, x_nghb)}] = {(curr_block.map_addr, x)}')
 
-			# print(f'g[{next_block.map_addr}][{x_nghb}]: {state.g[next_block][x_nghb]}')
 
 		path_lens = [state.g[next_block][x_nghb] + state.h(next_block, x_nghb) for _, x_nghb in xs]
 		new_priority = np.min(path_lens)
-		# print(path_lens, new_priority, state.heapvalue.get(next_block, np.inf))
 		if new_priority < state.heapvalue.get(next_block, np.inf):
 			state.heapvalue[next_block] = new_priority
 			state.pq.push(next_block, new_priority)
 			x, x_nghb = xs[np.argmin(path_lens)]
-			# print(f'parent[{(next_block.map_addr, x_nghb)}] = {(curr_block.map_addr, x)}')
-			# state.parent[(next_block, x_nghb)] = (curr_block, x)
-			# print(f'new_priority: {next_block.map_addr}, {new_priority}')
 
 
 
@@ -168,12 +152,9 @@ def expand_block(state, curr_block, Y, h):
 # Helpers
 ###############################################################################################
 def init(state, block, node):
-	# print(f'block {block}')
 	dists, parent_map = bfs_to_all_points(block, node)
-	# print(f'node {node}')
 	for k, v in dists.items():
 		if is_boundary_node(block, k):
-			# print(f'k {k}')
 			state.lddb[block.idx][(node, k)] = v
 			state.lddb[block.idx][(k, node)] = v
 			p = get_path_from_parent_map(parent_map, k)
@@ -214,22 +195,9 @@ def recover_path(state, goal_block, goal_block_node):
 	path = [to_global_node(goal_block, goal_block_node)]
 	curr_block, curr_node = goal_block, goal_block_node
 	while True:
-		try:
-			p_block, p_node = state.parent[(curr_block, curr_node)]
-		except:
-			print('Error!')
-			print(path)
-			print((curr_block.map_addr, curr_node))
-			print(state.parent)
-			break
+		p_block, p_node = state.parent[(curr_block, curr_node)]
 
 		if p_block is None:
-			break
-
-		if to_global_node(p_block, p_node) in path:
-			print(path)
-			print(to_global_node(p_block, p_node))
-			pretty_print(state.Map._map, state.Map.block_size, path=path, start=state.start, goal=path[0])
 			break
 
 		if p_block == curr_block:
