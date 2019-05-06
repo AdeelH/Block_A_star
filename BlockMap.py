@@ -30,7 +30,7 @@ class BlockMap(object):
 		y, x = key
 		self.blocks[y][x] = value
 
-	def neighbors(self, block):
+	def block_neighbors(self, block):
 		adjacent_blocks = self.adjacent_blocks(block.map_addr)
 		valid_blocks = [(self[i], d) for i, d in adjacent_blocks if self._is_valid(*i)]
 		return valid_blocks
