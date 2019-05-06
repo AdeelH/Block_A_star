@@ -33,21 +33,25 @@ from common import AttrDict, get_path_from_parent_map, is_visitable, visitable
 #	 end if
 
 def block_a_star(lddb, pathsdb, Map, start, goal, h):
+
+	# a dict that will hold the state during the algorithm's run
 	state = AttrDict({
 		'Map': Map,
 		'start': start,
 		'goal': goal,
-		'g': defaultdict(dict),
-		'g_changed': defaultdict(dict),
-		'heapvalue': {},
-		'pq': PriorityQueue(),
-		'parent': {},
+
 		'lddb': lddb,
 		'pathsdb': pathsdb,
 		'h': lambda block, node: h(to_global_node(block, node), goal),
-		'start': start
+
+		'g': defaultdict(dict),
+		'g_changed': defaultdict(dict),
+		'heapvalue': {},
+		'heap': PriorityQueue(),
+		'parent': {}
 	})
 
+	# *_block_node = local address within corresponding block
 	start_block, start_block_node = Map.get_node_block(start)
 	goal_block , goal_block_node  = Map.get_node_block(goal)
 
@@ -58,26 +62,34 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 	state.g_changed[start_block][start_block_node] = True
 	state.parent[(start_block, start_block_node)] = (None, None)
 
-	state.pq.push(start_block, 0)
+	state.heap.push(start_block, 0)
 	state.heapvalue[start_block] = 0
 
 	length = np.inf
-	while len(state.pq) > 0 and state.heapvalue[state.pq.top()[0]] < length:
-		curr_block = state.pq.pop()
-		ingress = get_ingress_nodes(state, curr_block)
-		if len(ingress) == 0:
+	while not state.heap.empty() and state.heapvalue[state.heap.top()[0]] < length:
+
+		curr_block = state.heap.pop()
+		ingress_nodes = get_ingress_nodes(state, curr_block)
+		
+		if len(ingress_nodes) == 0:
 			continue
-		if curr_block.map_addr == goal_block.map_addr:
-			path_lens = [state.g[curr_block][y] + state.lddb[curr_block.idx].get((y, goal_block_node), np.inf) for y in ingress]
-			min_y_to_goal = np.min(path_lens)
-			best_y = ingress[np.argmin(path_lens)]
-			if goal_block_node != best_y:
-				state.parent[(goal_block, goal_block_node)] = (curr_block, best_y)
-			if min_y_to_goal < np.inf:
-				length = min(length, min_y_to_goal)
-			else:
-				state.heapvalue[curr_block] = np.inf
-		expand_block(state, curr_block, ingress, h)
+		
+		if curr_block == goal_block:
+
+			block_lddb = state.lddb[curr_block.idx]
+			dists_to_goal = [
+				state.g[curr_block][y] + block_lddb.get((y, goal_block_node), np.inf) for y in ingress_nodes
+			]
+			
+			length = min(length, np.min(dists_to_goal))
+
+			# set parent of goal node, but avoid pointing to self
+			if goal_block_node != nearest_ingress_node:
+				nearest_ingress_node = ingress_nodes[np.argmin(dists_to_goal)]
+				state.parent[(goal_block, goal_block_node)] = (curr_block, nearest_ingress_node)
+
+		expand_block(state, curr_block, ingress_nodes, h)
+
 	if length < np.inf:
 		return True, recover_path(state, goal_block, goal_block_node)
 	else:
@@ -159,7 +171,7 @@ def expand_block(state, curr_block, ingress_nodes, h):
 		# if improved, push next_block on to the heap
 		if new_priority < state.heapvalue.get(next_block, np.inf) or any(g_changed[next_block].get(e_nb, False) for _, e_nb in egress_nodes):
 			state.heapvalue[next_block] = new_priority
-			state.pq.push(next_block, new_priority)
+			state.heap.push(next_block, new_priority)
 			e, x_nb = egress_nodes[np.argmin(dists_to_next_block)]
 
 
@@ -222,7 +234,7 @@ def recover_path(state, goal_block, goal_block_node):
 			path.append(to_global_node(p_block, p_node))
 
 		curr_block, curr_node = p_block, p_node
-	return path
+	return path[::-1]
 
 
 

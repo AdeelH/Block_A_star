@@ -52,6 +52,8 @@ class PriorityQueue(object):
 	def priority(self, item):
 		return self.entry_finder[item][0]
 
+	def empty(self):
+		return self.size == 0
 
 	def __len__(self):
 		return self.size
