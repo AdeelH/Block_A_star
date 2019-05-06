@@ -25,7 +25,6 @@ def experiment(algo, generate_map, data=AttrDict(), preprocessing=lambda m, d: m
 			if ignore_failures:
 				continue
 		times.append(perf_counter() - t1)
-		# print(len(times))
 
 	return sum(times) / runs, times, failure_count
 

@@ -11,7 +11,7 @@ from A_star import a_star
 from common import AttrDict, generate_random_map, l1_dist
 
 
-np.random.seed(12)
+np.random.seed(1)
 
 ##########################################################################
 ## Block A*
@@ -25,28 +25,31 @@ block_size = 4
 # Map = np.array([
 # 	[0, 0, 0, 0,   0, 0, 0, 0],
 # 	[0, 0, 0, 0,   0, 0, 0, 0],
+# 	[0, 0, 1, 0,   0, 0, 0, 0],
+# 	[0, 1, 0, 1,   0, 0, 0, 0],
+
+# 	[0, 1, 0, 1,   0, 0, 0, 0],
+# 	[1, 1, 1, 1,   0, 0, 0, 0],
 # 	[0, 0, 0, 0,   0, 0, 0, 0],
 # 	[0, 0, 0, 0,   0, 0, 0, 0],
 
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-	
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
-# 	[0, 0, 0, 0,   0, 0, 0, 0],
+# 	[0, 0, 0, 1,   0, 0, 0, 0],
+# 	[0, 0, 0, 1,   0, 0, 0, 0],
+# 	[0, 0, 0, 1,   0, 0, 0, 0],
+# 	[0, 0, 0, 1,   0, 0, 0, 0],
 # ])
-# start = (1, 7)
-# goal = (4, 2)
+# start = (0, 0)
+# goal = (11, 0)
 ##################################
 
 
 ##################################
 ## for testing on random maps
 ##################################
-Map, start, goal = generate_random_map(20, 20, p=0.3, start_and_goal=True)
+# for _ in range(50):
+# 	Map, start, goal = generate_random_map(8, 8, p=0.4, start_and_goal=True)
+Map, start, goal = generate_random_map(8, 8, p=0.4, start_and_goal=True)
+pretty_print(Map, block_size, start=start, goal=goal)
 ##################################
 
 block_map = BlockMap(Map, block_size)
