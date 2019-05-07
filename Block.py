@@ -10,6 +10,15 @@ class InvalidNodeError(Exception):
 
 class Block(object):
 	def __init__(self, idx, size, map_addr=None):
+		"""Representation of a size x size block. THe block is stored as an 
+		integer formed by interpreting its entries as binary. Specifically,
+		entry (i, j) = (i * size + j)th bit from the right.
+
+		Args:
+			idx: integere representing the block.
+			size: size of block.
+			map_addr: address of the block in the containing BlockMap, if any
+		"""
 		super(Block, self).__init__()
 		assert idx < 2**(size**2)
 		self.idx = idx

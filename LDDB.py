@@ -8,6 +8,9 @@ from Block import neighbors
 
 
 def bfs_to_all_points(block, start):
+	"""Perform Breadth First Search to all nodes starting from `start`
+	and return a tuple of distances and parent mappings.
+	"""
 	frontier = deque()
 	frontier.append(start)
 	dists = {start: 0}
@@ -29,7 +32,13 @@ def bfs_to_all_points(block, start):
 
 
 def make_lddb(block_size, from_file=False, save_to_file=True):
+	"""Populate the Local Distance Database (LDDB) for blocks of given size.
 
+	Args:
+		block_size: size of blocks
+		from_file: if True, will load LDDB from file
+		save_to_file: if True, will save constructed LDDB to file
+	"""
 	if from_file:
 		with open('lddb.pkl', 'rb') as f_in:
 			lddb, paths = pickle.load(f_in)
