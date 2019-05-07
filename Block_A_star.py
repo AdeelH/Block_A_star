@@ -172,7 +172,7 @@ def expand_block(state, curr_block, ingress_nodes):
 				g[curr_block][y] + lddb[curr_block.idx].get((y, e), np.inf) for y in ingress_nodes
 			]
 			# best (min) g value
-			e_new_g = np.min(gs_to_e)
+			e_new_g = min(gs_to_e)
 
 			g[curr_block][e] = min(e_old_g, e_new_g)
 			g_changed[curr_block][e] = False
@@ -198,7 +198,7 @@ def expand_block(state, curr_block, ingress_nodes):
 			g[next_block][e_nb] + state.h(next_block, e_nb) for _, e_nb in egress_nodes
 		]
 		# best g + h
-		new_priority = np.min(dists_to_next_block)
+		new_priority = min(dists_to_next_block)
 		# if improved, push next_block on to the heap
 		if new_priority < state.heapvalue.get(next_block, np.inf) or any(g_changed[next_block].get(e_nb, False) for _, e_nb in egress_nodes):
 			state.heapvalue[next_block] = new_priority

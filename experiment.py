@@ -40,12 +40,12 @@ def experiment(algo, generate_map, data=AttrDict(), preprocessing=lambda m, d: m
 				if ignore_failures:
 					continue
 
-	return sum(times) / (maps * runs), times, failure_count
+	return sum(times) / len(times), times, failure_count
 
 
 def time_block_a_star(b_sz, h, w, p, maps, runs):
 
-	lddb, pathsdb = make_lddb(b_sz, from_file=True, save_to_file=True)
+	lddb, pathsdb = make_lddb(b_sz, from_file=True, save_to_file=False)
 
 	data = AttrDict({
 		'block_size': b_sz,
@@ -74,11 +74,11 @@ def time_a_star(h, w, p, maps, runs):
 
 	print('%e' % avg_time, fc)
 
-
+# Experiment parameters
 np.random.seed(1)
 h, w = 200, 200
 maps = 50
-runs = 100
+runs = 50
 
 for p in [0., .1, .2, .3, .4, .5]:
 	print(p)
