@@ -83,9 +83,9 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 			
 			length = min(length, np.min(dists_to_goal))
 
+			nearest_ingress_node = ingress_nodes[np.argmin(dists_to_goal)]
 			# set parent of goal node, but avoid pointing to self
 			if goal_block_node != nearest_ingress_node:
-				nearest_ingress_node = ingress_nodes[np.argmin(dists_to_goal)]
 				state.parent[(goal_block, goal_block_node)] = (curr_block, nearest_ingress_node)
 
 		expand_block(state, curr_block, ingress_nodes)
