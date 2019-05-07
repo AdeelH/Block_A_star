@@ -99,12 +99,14 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 				state.g[curr_block][y] + block_lddb.get((y, goal_block_node), np.inf) for y in ingress_nodes
 			]
 			
-			length = min(length, np.min(dists_to_goal))
+			new_length = min(length, np.min(dists_to_goal))
 
-			nearest_ingress_node = ingress_nodes[np.argmin(dists_to_goal)]
-			# set parent of goal node, but avoid pointing to self
-			if goal_block_node != nearest_ingress_node:
-				state.parent[(goal_block, goal_block_node)] = (curr_block, nearest_ingress_node)
+			if new_length < length:
+				length = new_length
+				nearest_ingress_node = ingress_nodes[np.argmin(dists_to_goal)]
+				# set parent of goal node, but avoid pointing to self
+				if goal_block_node != nearest_ingress_node:
+					state.parent[(goal_block, goal_block_node)] = (curr_block, nearest_ingress_node)
 
 		expand_block(state, curr_block, ingress_nodes)
 
