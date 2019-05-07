@@ -46,8 +46,10 @@ def make_lddb(block_size, from_file=False, save_to_file=True):
 
 	t1 = timer() 
 	size = block_size
-	lddb = {}
-	paths = {}
+	
+	lddb = [None] * 2**(size**2)
+	paths = [None] * 2**(size**2)
+
 	for idx in range(2**(size**2)):
 		block = Block(idx, size)
 		block_dists = {}

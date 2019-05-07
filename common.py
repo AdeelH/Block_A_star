@@ -30,7 +30,7 @@ def visitable(container, nodes):
 
 
 def generate_random_map(h, w, p=0.2, start_and_goal=True):
-	m = ((np.random.rand(h, w)) < p) + 0
+	m = ((np.random.rand(h, w)) < p)
 	if start_and_goal:
 		start = (np.random.randint(h), np.random.randint(w))
 		goal = (np.random.randint(h), np.random.randint(w))
