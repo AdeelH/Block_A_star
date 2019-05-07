@@ -33,7 +33,25 @@ from common import AttrDict, get_path_from_parent_map, is_visitable, visitable
 #	 end if
 
 def block_a_star(lddb, pathsdb, Map, start, goal, h):
+	"""Block A* search. Implementation of Algorithm 2 from the paper:
 
+	Yap, P., Burch, N., Holte, R. C., & Schaeffer, J. (2011, August). 
+	Block A*: Database-driven search with applications in any-angle path-planning. 
+	In Twenty-Fifth AAAI Conference on Artificial Intelligence.
+
+	Args:
+		lddb: local distance database
+		pathsdb: local paths database
+		Map: a BlockMap representing the map to be searched
+		start: global address of the start node
+		goal: global address of the goal node
+		h: heuristic function
+
+	Returns:
+		A tuple of: a boolean value indicating if the goal was found 
+		and a list of nodes on the path between start and goal.
+		(goal_found, path)
+	"""
 	# a dict that will hold the state during the algorithm's run
 	state = AttrDict({
 		'Map': Map,
@@ -121,6 +139,17 @@ def block_a_star(lddb, pathsdb, Map, start, goal, h):
 # 
 
 def expand_block(state, curr_block, ingress_nodes):
+	"""Expand block. Implementation of Algorithm 1 from the paper:
+
+	Yap, P., Burch, N., Holte, R. C., & Schaeffer, J. (2011, August). 
+	Block A*: Database-driven search with applications in any-angle path-planning. 
+	In Twenty-Fifth AAAI Conference on Artificial Intelligence.
+
+	Args:
+		state: state dict. Must contain g, h, g_changed, lddb, parent, heap, heapvalue.
+		curr_block: block to be expanded
+		ingress_nodes: valid ingress nodes in the current block
+	"""
 	g, g_changed, lddb = state.g, state.g_changed, state.lddb
 
 	# neighboring blocks
@@ -180,6 +209,13 @@ def expand_block(state, curr_block, ingress_nodes):
 # Helpers
 ###############################################################################################
 def init(state, block, node):
+	"""Set distances and paths from `node` to every other node (and vice versa) in `block`.
+
+	Args:
+		state: state dict. Must contain lddb and pathsdb.
+		block: block containing the node
+		node: target node
+	"""
 	dists, parent_map = bfs_to_all_points(block, node)
 	for k, v in dists.items():
 		state.lddb[block.idx][(node, k)] = v
@@ -190,6 +226,18 @@ def init(state, block, node):
 
 
 def get_egress_nodes(state, curr_block, next_block, direction):
+	"""Get valid egress nodes on the side of `curr_block` represented by `direction`.
+	`next_block` is assumed to be in the direction `direction` of `curr_block`.
+
+	Args:
+		state: the real part (default 0.0)
+		curr_block: block whose egress nodes are sought
+		next_block: block on the side of `curr_block` represented by `direction`
+		direction: a tuple representing direction e.g (1, 0) = UP, (0, 1) = RIGHT etc.
+
+	Returns:
+		list of tuples of the form (egress_node, egress_node_neighbor)
+	"""
 	dy, dx = direction
 	boundary = visitable(curr_block, boundary_nodes(curr_block))
 	sz = len(curr_block)
@@ -207,18 +255,21 @@ def get_egress_nodes(state, curr_block, next_block, direction):
 
 
 def get_ingress_nodes(state, block):
+	"""Get nodes in block whose g values have changed since last expansion"""
 	block_g = state.g[block]
 	block_g_flag = state.g_changed[block]
 	return [node for node in block_g.keys() if block_g_flag.get(node, False)]
 
 
 def to_global_node(block, node):
+	"""Convert to global node address"""
 	by, bx = block.map_addr
 	sz = block.size
 	y, x = node
 	return (by * sz + y), (bx * sz + x)
 
 def recover_path(state, goal_block, goal_block_node):
+	"""Extract path from start to goal from the parent mappings"""
 	path = [to_global_node(goal_block, goal_block_node)]
 	curr_block, curr_node = goal_block, goal_block_node
 	while True:
